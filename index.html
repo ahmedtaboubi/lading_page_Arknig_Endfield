@@ -262,8 +262,15 @@ footer { background: #000; padding: 60px 20px 40px; text-align: center; border-t
   .feat-grid { grid-template-columns: repeat(2, 1fr); }
   .gp-split, .req-grid { grid-template-columns: 1fr; gap: 40px; }
   .gp-vis { order: -1; }
-  .op-wrap { justify-content: flex-start; overflow-x: auto; padding-bottom: 20px; }
-  .op-card { flex: 0 0 250px; }
+  .op-wrap { 
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 30px !important; 
+    padding: 20px !important;
+    overflow-x: visible !important;
+  }
+  .op-card { width: 100% !important; max-width: 320px !important; flex: none !important; }
 }
 @media(max-width: 768px) {
   .hero-sub { font-size: 1.2rem; }
@@ -285,18 +292,25 @@ footer { background: #000; padding: 60px 20px 40px; text-align: center; border-t
   }
   .btn-pri.sticky-active {
     position: fixed !important;
-    top: 50% !important;
-    right: 20px !important;
-    transform: translateY(-50%) rotate(-90deg) !important;
+    top: auto !important;
+    bottom: 25px !important;
+    right: 50% !important;
+    transform: translateX(50%) !important;
     z-index: 100000 !important;
-    font-size: 1rem !important;
-    padding: 15px 30px !important;
+    font-size: 0.85rem !important;
+    padding: 12px 30px !important;
     white-space: nowrap !important;
-    box-shadow: -5px 0 20px rgba(238, 246, 30, 0.5) !important;
+    box-shadow: 0 8px 25px rgba(238, 246, 30, 0.6) !important;
     pointer-events: auto !important;
     display: block !important;
     background: var(--col-pri) !important;
     color: #000 !important;
+    border-radius: 50px !important;
+    animation: slide-up-mobile 0.4s ease-out forwards !important;
+  }
+  @keyframes slide-up-mobile {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   @keyframes slide-sticky {
     from { opacity: 0; transform: translateY(-50%) rotate(-90deg) translateX(50px); }
