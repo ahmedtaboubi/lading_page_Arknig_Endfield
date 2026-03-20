@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arknights: Endfield — RPG Tactique 3D Gratuit</title>
+<meta name="description" content="Télécharge Arknights: Endfield. RPG tactique 3D, explore Talos-II, construis ta base et combats avec tes opérateurs sur PC, PS5 et Mobile.">
+<meta property="og:title" content="Arknights: Endfield — RPG Tactique 3D Gratuit">
+<meta property="og:description" content="Télécharge Arknights: Endfield. RPG tactique 3D, explore Talos-II, construis ta base et combats avec tes opérateurs sur PC, PS5 et Mobile.">
+<meta property="og:image" content="https://placehold.co/1200x630/050a14/00d4ff?text=ARKNIGHTS+ENDFIELD">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main: #000000;
+  --bg-sec: #111111;
+  --col-pri: #eef61e;
+  --col-sec: #00f0ff;
+  --col-acc: #c52127;
+  --text-main: #ffffff;
+  --text-sec: #a0a0a0;
+  --font-t: 'Rajdhani', sans-serif;
+  --font-b: 'Chakra Petch', sans-serif;
+  --glow-cyan: 0 0 10px rgba(0, 240, 255, 0.4);
+  --border-cyan: 1px solid rgba(0, 240, 255, 0.3);
+  --glass-bg: rgba(0, 0, 0, 0.6);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-b); background: var(--bg-main);
+  color: var(--text-main); overflow-x: hidden; line-height: 1.6;
+}
+h1, h2, h3, h4 { font-family: var(--font-t); text-transform: uppercase; letter-spacing: 1px; }
+a { text-decoration: none; color: inherit; }
+
+/* Grid & Scanning Background */
+.bg-grid {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background-image: linear-gradient(rgba(0,240,255,0.02) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(0,240,255,0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+#particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.particle {
+  position: absolute; background: var(--col-sec); width: 2px; height: 10px;
+  opacity: 0.3; animation: scan 10s infinite linear;
+}
+@keyframes scan {
+  0% { transform: translateY(-100vh); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.fade-up { opacity: 0; transform: translateY(30px); transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.visible { opacity: 1; transform: translateY(0); }
+.hero-c.visible { transform: none; } /* Clear transform to allow fixed children */
+
+/* Buttons & UI Elements */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-t); font-weight: 700; text-transform: uppercase;
+  cursor: pointer; position: relative; overflow: hidden; letter-spacing: 1px;
+  transition: all 0.3s ease; border-radius: 0;
+}
+.btn-pri {
+  background: var(--col-pri); color: #000;
+  padding: 20px 40px; font-size: 1.2rem; border: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.btn-pri::before {
+  content: ''; position: absolute; top:0; left:-100%; width:50%; height:100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  transform: skewX(-20deg); transition: 0.5s;
+}
+.btn-pri:hover { background: #fff; box-shadow: 0 0 20px rgba(238, 246, 30, 0.6); color: #000; }
+.btn-pri:hover::before { left: 200%; }
+
+.btn-sec {
+  background: transparent; color: var(--col-pri);
+  border: 1px solid var(--col-pri); padding: 15px 30px; font-size: 1rem;
+}
+.btn-sec:hover { background: rgba(238, 246, 30, 0.1); color: #fff; box-shadow: 0 0 15px rgba(238,246,30,0.3); }
+
+/* Common */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.sec { padding: 100px 0; position: relative; }
+.sec-title { 
+  font-size: 2.5rem; margin-bottom: 50px; color: #fff; 
+  display: flex; align-items: center; gap: 15px;
+}
+.sec-title::before {
+  content: ''; display: block; width: 4px; height: 40px; background: var(--col-pri);
+}
+.divider { display: none; }
+
+/* 1. HERO */
+.hero {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  position: relative; text-align: center; overflow: hidden; padding: 100px 20px;
+}
+.hero-bg { position: absolute; inset: 0; z-index: -1; background: #000; }
+.hero-bg video { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, #000 0%, transparent 40%),
+              radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
+}
+.hero-c { position: relative; z-index: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+.hero-logo { width: 100%; max-width: 600px; margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(0,240,255,0.3)); }
+.badge { 
+  display: inline-block; padding: 6px 15px; border: 1px solid var(--col-sec); 
+  background: rgba(0,240,255,0.1); color: var(--col-sec); font-family: var(--font-b); 
+  font-size: 0.8rem; margin-bottom: 25px; letter-spacing: 2px; text-transform: uppercase;
+}
+.hero-sub { font-size: 1.6rem; color: var(--text-main); font-family: var(--font-t); font-weight: 600; letter-spacing: 2px; margin-bottom: 40px; text-shadow: 0 2px 10px #000; }
+.hero-cta-wrap { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 40px; }
+.reassure { color: var(--text-sec); font-size: 0.85rem; display: flex; gap: 20px; justify-content: center; font-family: var(--font-b); }
+.os-alert { margin-top: 25px; color: var(--col-acc); font-size: 0.85rem; border-left: 3px solid var(--col-acc); background: rgba(197, 33, 39, 0.1); display: inline-block; padding: 8px 15px; text-transform: uppercase; letter-spacing: 1px;}
+.scroll-icon { 
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); 
+  display: flex; flex-direction: column; align-items: center; color: var(--text-sec); 
+  font-family: var(--font-t); font-size: 0.75rem; letter-spacing: 3px; cursor: pointer; transition: 0.3s;
+}
+.scroll-icon:hover { color: var(--col-sec); }
+.scroll-down-arrow { width: 1px; height: 30px; background: currentColor; margin-top: 10px; animation: slideDown 2s infinite; transform-origin: top; }
+@keyframes slideDown { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(0); transform-origin: bottom; } }
+
+/* 2. STATS */
+.stats { background: var(--bg-sec); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 40px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center; }
+.stat-v { font-family: var(--font-t); font-size: 3rem; font-weight: 700; color: #fff; margin-bottom: 5px; line-height: 1; }
+.stat-v span { color: var(--col-pri); }
+.stat-l { color: var(--text-sec); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; }
+
+/* 3. FEATURES */
+.feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.f-card { 
+  background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1); 
+  backdrop-filter: blur(10px); transition: 0.3s; position: relative;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+}
+.f-card::before { 
+  content: ''; position: absolute; top:0; left:0; width: 100%; height: 2px; 
+  background: var(--col-sec); transform: scaleX(0); transform-origin: left; transition: 0.4s; z-index: 2;
+}
+.f-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(0,240,255,0.3); }
+.f-card:hover::before { transform: scaleX(1); }
+.f-img { width: 100%; height: 200px; object-fit: cover; display: block; filter: grayscale(50%) contrast(1.2); transition: 0.4s; }
+.f-card:hover .f-img { filter: grayscale(0%) contrast(1); }
+.f-body { padding: 30px; position: relative; }
+.f-num { position: absolute; top: -30px; right: 20px; font-family: var(--font-t); font-size: 3rem; font-weight: 700; color: rgba(255,255,255,0.1); line-height: 1; pointer-events: none;}
+.f-body h3 { color: #fff; margin-bottom: 15px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+.f-body h3::before { content: ''; display: block; width: 10px; height: 10px; background: var(--col-pri); }
+.f-body p { color: var(--text-sec); font-size: 0.95rem; }
+
+/* 4. GAMEPLAY */
+.gp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.gp-text h2 { font-size: 2.5rem; margin-bottom: 25px; line-height: 1.2; }
+.gp-text p { color: var(--text-sec); margin-bottom: 25px; font-size: 1.05rem;}
+.gp-text ul { list-style: none; margin-bottom: 40px; }
+.gp-text li { position: relative; padding-left: 20px; margin-bottom: 12px; color: #ddd; font-family: var(--font-b); }
+.gp-text li::before { content: '/>'; color: var(--col-sec); position: absolute; left: 0; font-family: var(--font-t); font-weight: 700; font-size: 0.9rem; margin-top: 2px;}
+.gp-vis { position: relative; padding: 20px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg-sec); }
+.gp-vis::before, .gp-vis::after { content:''; position: absolute; width: 20px; height: 20px; border: 2px solid var(--col-sec); }
+.gp-vis::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.gp-vis::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+.gp-img { width: 100%; height: auto; display: block; filter: contrast(1.1); }
+.gp-badge { position: absolute; bottom: -15px; right: -20px; background: var(--col-pri); color: #000; padding: 10px 20px; font-family: var(--font-t); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); }
+
+/* 5. LORE */
+.lore { position: relative; padding: 120px 0; background: url('https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/kv_v1d1.3df4b429.jpg') center/cover fixed; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+.lore-ov { position: absolute; inset: 0; background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0.7) 100%); }
+.lore-c { position: relative; z-index: 1; max-width: 600px; margin: 0; }
+.lore-c h2 { font-size: 3rem; margin-bottom: 40px; color: #fff; }
+.lore-c h2 span { color: var(--col-pri); }
+.l-block { margin-bottom: 30px; position: relative; padding-left: 30px; border-left: 1px solid rgba(255,255,255,0.2); }
+.l-block::before { content: ''; position: absolute; left: -3px; top: 5px; width: 5px; height: 5px; background: var(--col-sec); }
+.l-text h3 { color: #fff; font-size: 1.2rem; margin-bottom: 5px; letter-spacing: 2px;}
+.l-text p { color: var(--text-sec); margin: 0; font-size: 0.95rem; }
+
+/* 6. OPERATORS */
+.op-wrap { display: flex; gap: 20px; justify-content: center; overflow: visible; perspective: 1000px; padding: 20px 0; }
+.op-card { 
+  background: var(--bg-sec); border: 1px solid rgba(255,255,255,0.05); 
+  width: 250px; text-align: center; position: relative;
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+  transform-style: preserve-3d;
+  --rx: 0deg; --ry: 0deg;
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(1);
+  transition: transform 0.1s ease-out, background 0.4s, border-color 0.4s;
+  cursor: pointer;
+  will-change: transform;
+}
+.op-card:hover { background: #1a1a1a; border-color: var(--col-sec); z-index: 10; transform: rotateX(var(--rx)) rotateY(var(--ry)) scale(1.05); }
+.op-img-w { width: 100%; height: 250px; background: #0a0a0a; overflow: hidden; position: relative; border-bottom: 2px solid var(--col-pri); transform: translateZ(30px); }
+.op-img-w img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: 0.5s; }
+.op-card:hover .op-img-w img { filter: brightness(1.2); }
+.op-info { padding: 20px; transform: translateZ(20px); }
+.op-card h3 { color: #fff; font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; letter-spacing: 2px; transform: translateZ(40px); }
+.op-card p { color: var(--col-sec); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 1px; font-weight: 600; transform: translateZ(30px); }
+.op-stat { display: flex; align-items: center; margin-bottom: 8px; }
+.o-s-name { font-size: 0.7rem; color: var(--text-sec); width: 35px; text-align: left; font-family: var(--font-t); font-weight: 700; }
+.o-s-bg { flex: 1; height: 2px; background: rgba(255,255,255,0.1); }
+.o-s-fill { height: 100%; background: var(--col-pri); width: 0; transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.op-stars { display: none; }
+.op-stars { display: none; }
+
+/* 6.5 VIDEO MODAL */
+#video-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+  z-index: 9999; display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: 0.4s;
+}
+#video-modal.active { opacity: 1; pointer-events: auto; }
+.vm-content { width: 90%; max-width: 1200px; aspect-ratio: 16/9; position: relative; border: 2px solid var(--col-pri); box-shadow: 0 0 50px rgba(238,246,30,0.2); }
+.vm-content iframe { width: 100%; height: 100%; border: none; }
+.vm-close { 
+  position: absolute; top: -50px; right: -50px; background: transparent; border: none; 
+  color: #fff; font-size: 3rem; cursor: pointer; transition: 0.3s; font-family: var(--font-t);
+}
+.vm-close:hover { color: var(--col-pri); transform: rotate(90deg); }
+
+
+/* 7. REQS */
+.req-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.r-card { background: rgba(255,255,255,0.02); padding: 40px; border: 1px solid rgba(255,255,255,0.05); }
+.r-card.r-rec { background: rgba(0,240,255,0.03); border: 1px solid rgba(0,240,255,0.2); position: relative; }
+.r-card.r-rec::before { content:''; position: absolute; top:0; left:0; width: 100%; height: 2px; background: var(--col-sec); }
+.r-badge { 
+  display: inline-block; padding: 5px 15px; font-family: var(--font-t); font-weight: 700;
+  font-size: 0.9rem; margin-bottom: 30px; background: rgba(255,255,255,0.1); color: var(--text-sec); letter-spacing: 1px;
+}
+.r-card.r-rec .r-badge { background: var(--col-sec); color: #000; }
+.r-list { list-style: none; }
+.r-list li { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.95rem; border-bottom: 1px dotted rgba(255,255,255,0.1); padding-bottom: 8px; }
+.r-key { color: var(--text-sec); font-family: var(--font-t); text-transform: uppercase; letter-spacing: 1px; }
+.r-val { color: #fff; font-weight: 600; text-align: right; }
+.r-note { text-align: center; color: var(--col-acc); font-size: 0.85rem; margin-top: 30px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* 8. CTA FINAL */
+.cta-sec { position: relative; padding: 150px 20px; text-align: center; background: url('https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/bg.51f75595.jpg') center/cover; }
+.cta-sec::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.8) 100%); }
+.cta-c { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+.cta-c h2 { font-size: 4rem; margin-bottom: 15px; letter-spacing: 3px; }
+.cta-c p { font-size: 1.2rem; color: var(--text-sec); margin-bottom: 50px; font-family: var(--font-b); }
+.cta-btns { display: flex; gap: 20px; justify-content: center; margin-bottom: 40px; }
+.cta-cpi { font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* 9. FOOTER */
+footer { background: #000; padding: 60px 20px 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); }
+.f-logo { margin-bottom: 30px; color: #fff; opacity: 0.5; font-family: var(--font-t); font-size: 1.5rem; letter-spacing: 2px;}
+.f-links { display: flex; gap: 30px; justify-content: center; margin-bottom: 30px; font-family: var(--font-t); text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+.f-links a { color: var(--text-sec); transition: 0.3s; }
+.f-links a:hover { color: var(--col-pri); }
+.f-copy { color: rgba(255,255,255,0.2); font-size: 0.8rem; margin-bottom: 10px; font-family: var(--font-b); }
+.f-disc { color: rgba(255,255,255,0.15); font-size: 0.75rem; font-family: var(--font-b); }
+
+/* RESPONSIVE */
+@media(max-width: 1024px) {
+  .feat-grid { grid-template-columns: repeat(2, 1fr); }
+  .gp-split, .req-grid { grid-template-columns: 1fr; gap: 40px; }
+  .gp-vis { order: -1; }
+  .op-wrap { justify-content: flex-start; overflow-x: auto; padding-bottom: 20px; }
+  .op-card { flex: 0 0 250px; }
+}
+@media(max-width: 768px) {
+  .hero-sub { font-size: 1.2rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .feat-grid { grid-template-columns: 1fr; }
+  .cta-btns { flex-direction: column; }
+  .r-list li { flex-direction: column; text-align: left; }
+  .r-val { text-align: left; margin-top: 5px; }
+  .sec-title { font-size: 2rem; }
+
+  /* STICKY HERO CTA */
+  .hero-cta-wrap {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 40px;
+  }
+  .btn-pri.sticky-active {
+    position: fixed !important;
+    top: 50% !important;
+    right: 20px !important;
+    transform: translateY(-50%) rotate(-90deg) !important;
+    z-index: 100000 !important;
+    font-size: 1rem !important;
+    padding: 15px 30px !important;
+    white-space: nowrap !important;
+    box-shadow: -5px 0 20px rgba(238, 246, 30, 0.5) !important;
+    pointer-events: auto !important;
+    display: block !important;
+    background: var(--col-pri) !important;
+    color: #000 !important;
+  }
+  @keyframes slide-sticky {
+    from { opacity: 0; transform: translateY(-50%) rotate(-90deg) translateX(50px); }
+    to { opacity: 1; transform: translateY(-50%) rotate(-90deg) translateX(0); }
+  }
+
+}
+
+/* SOUND TOGGLE */
+.sound-toggle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 10001;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--col-pri);
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+.sound-toggle:hover { border-color: var(--col-pri); box-shadow: 0 0 15px rgba(255, 187, 0, 0.3); }
+.s-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+.s-bar {
+  width: 3px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: 0.3s;
+}
+.sound-toggle.muted .s-bar { height: 2px !important; opacity: 0.5; }
+.playing .s-bar:nth-child(1) { animation: bar-anim 0.4s infinite alternate; }
+.playing .s-bar:nth-child(2) { animation: bar-anim 0.6s 0.1s infinite alternate; }
+.playing .s-bar:nth-child(3) { animation: bar-anim 0.5s 0.2s infinite alternate; }
+.playing .s-bar:nth-child(4) { animation: bar-anim 0.3s 0.3s infinite alternate; }
+
+@keyframes bar-anim { 0% { height: 4px; } 100% { height: 18px; } }
+
+/* SCANLINES */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+  /* LOGO ANIMATION */
+  .hero-logo-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+    cursor: default;
+  }
+  .hero-logo {
+    width: 500px;
+    max-width: 90vw;
+    display: block;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
+  }
+  
+  /* Shimmer Sweep */
+  .hero-logo-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -150%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: skewX(-20deg);
+    animation: logo-shimmer 8s infinite linear;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Glitch Keyframes */
+  @keyframes logo-glitch {
+    0% { transform: translate(0); clip-path: inset(0 0 0 0); filter: brightness(1); }
+    1% { transform: translate(-5px, -2px); clip-path: inset(10% 0 15% 0); filter: hue-rotate(90deg) brightness(1.2); }
+    2% { transform: translate(5px, 2px); clip-path: inset(40% 0 30% 0); filter: hue-rotate(-90deg) brightness(1.2); }
+    3% { transform: translate(0); clip-path: inset(0 0 0 0); filter: brightness(1); }
+    48% { transform: translate(0); filter: brightness(1); }
+    49% { transform: translate(3px, 1px); clip-path: inset(20% 0 60% 0); filter: contrast(150%); }
+    50% { transform: translate(-3px, -1px); clip-path: inset(70% 0 5% 0); filter: invert(0.1); }
+    51% { transform: translate(0); clip-path: inset(0 0 0 0); filter: brightness(1); }
+    100% { transform: translate(0); }
+  }
+
+  @keyframes logo-shimmer {
+    0% { left: -150%; }
+    20% { left: 150%; }
+    100% { left: 150%; }
+  }
+
+  .hero-logo {
+    animation: logo-glitch 6s infinite;
+  }
+
+  .hero-logo-wrapper:hover .hero-logo {
+    animation: logo-glitch 0.5s infinite;
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.4));
+  }
+  /* WORLD SECTION */
+  .world-section {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .world-video-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .world-video-container video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    will-change: transform;
+    transform: scale(1.25);
+    transition: transform 0.1s ease-out;
+  }
+  .world-overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 20px;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .world-content {
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 4px;
+    max-width: 700px;
+    transform: translateY(30px);
+    opacity: 0;
+    transition: 1s ease-out;
+  }
+  .world-content.visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .mission-tag {
+    font-family: var(--font-b);
+    letter-spacing: 4px;
+    font-size: 0.8rem;
+    color: var(--col-pri);
+    margin-bottom: 15px;
+    border: 1px solid var(--col-pri);
+    padding: 5px 15px;
+    display: inline-block;
+  }
+  .world-content h2 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+  .world-content p {
+    font-size: 1.1rem;
+    color: var(--text-sec);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="bg-grid"></div>
+<div id="particles"></div>
+<div id="cta-teleport-zone"></div>
+
+<audio id="bgm" loop>
+  <source src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/sound/bgm.3ce37f.mp3" type="audio/mpeg">
+</audio>
+
+<button class="sound-toggle muted" id="sound-btn" title="Toggle Sound">
+  <div class="s-bars">
+    <div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div><div class="s-bar"></div>
+  </div>
+</button>
+
+<!-- 1. HERO -->
+<section class="hero">
+  <div class="hero-bg" id="hero-bg">
+    <video autoplay loop muted playsinline>
+      <source src="https://web-static.hg-cdn.com/upload/video/20260312/bd9793adc1bdbbd946c7bf413faae56f.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-c fade-up">
+    <div class="badge" style="font-size: 0.9rem;">DISPONIBLE SUR PC, PS5 & MOBILE</div>
+    
+    <div class="hero-logo-wrapper">
+      <img src="https://web-static.hg-cdn.com/gl_web_sdk/assets/title.1457e7b3acf74f0a6213.svg" alt="Arknights Endfield Logo" class="hero-logo">
+    </div>
+    <h1 style="display:none;">ARKNIGHTS ENDFIELD</h1>
+    
+    <h2 class="hero-sub">L'Attente est Terminée. <strong>Explorez Talos-II.</strong></h2>
+    
+    <div class="hero-cta-wrap" id="hero-cta-trigger">
+      <a href="https://endfield.gryphline.com/fr-fr?source=OOM#information" target="_blank" rel="noopener noreferrer" class="btn btn-pri t-cta" id="main-download-btn" data-loc="hero" style="font-size: 1.4rem; padding: 25px 50px; letter-spacing: 1px;">
+        TÉLÉCHARGER LE JEU
+      </a>
+      <div class="reassure">
+        <span>✓ 100% Gratuit</span>
+        <span>✓ Multiplateforme</span>
+      </div>
+    </div>
+    
+    <div class="platforms" style="display:flex; gap:25px; flex-wrap:wrap; justify-content:center; align-items:center; margin-top:20px; filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/appStore.de6bb72b.png" alt="App Store" style="height: 40px; width: auto;">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/googlePlay.6c0292ec.png" alt="Google Play" style="height: 40px; width: auto;">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/gpg.37836d7a.png" alt="Google Play Jeux" style="height: 40px; width: auto;">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/ps5.ff9ebc6a.png" alt="PlayStation 5" style="height: 35px; width: auto;">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/windows.f03ec02f.png" alt="Windows" style="height: 35px; width: auto;">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/epic.7b9f0f97.png" alt="Epic Games Store" style="height: 35px; width: auto;">
+    </div>
+  </div>
+  <div class="scroll-icon" onclick="window.scrollTo({top: window.innerHeight, behavior: 'smooth'})">
+    DÉCOUVRIR LE JEU
+    <div class="scroll-down-arrow"></div>
+  </div>
+</section>
+
+<!-- 2. STATS -->
+<section class="stats fade-up">
+  <div class="container stats-grid">
+    <div><div class="stat-v"><span class="c-up" data-to="3">0</span>D</div><div class="stat-l">Univers Immersif</div></div>
+    <div><div class="stat-v"><span class="c-up" data-to="100">0</span>+</div><div class="stat-l">Opérateurs Jouables</div></div>
+    <div><div class="stat-v" style="font-family:inherit;">∞</div><div class="stat-l">Heures de Contenu</div></div>
+    <div><div class="stat-v"><span class="c-up" data-to="0">0</span> €</div><div class="stat-l">Téléchargement</div></div>
+  </div>
+</section>
+
+<!-- 2.5 WORLD IMMERSIF -->
+<section class="world-section" id="world-sec">
+  <div class="world-video-container">
+    <video autoplay loop muted playsinline id="world-vid">
+      <source src="https://web-static.hg-cdn.com/upload/video/20251031/d4525925d753195d0bb0c3eecfba8d9b.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="world-overlay">
+    <div class="world-content" id="world-c">
+      <div class="mission-tag">MISSION : EXPLORATION TALOS-II</div>
+      <h2>UN UNIVERS IMMERSIF</h2>
+      <p>Plongez dans un monde sci-fi vaste où chaque recoin cache un secret, chaque ruine une énigme, et chaque horizon une nouvelle frontière à conquérir. Arknights: Endfield redéfinit l'immersion.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. FEATURES / SYSTEMS -->
+<section class="container sec" id="system">
+  <div class="lore-divider">
+    <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/section_divider_icon_lore.6968c414.png" alt="Divider">
+  </div>
+  <h2 class="sec-title fade-up">SYSTÈMES INDUSTRIELS (AIC)</h2>
+  <div class="divider fade-up" style="margin-bottom: 40px;"></div>
+  <div class="feat-grid">
+    <!-- 01 -->
+    <div class="f-card fade-up">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/01.aae95e75.png" class="f-img" alt="Combat">
+      <div class="f-body">
+        <div class="f-num">01</div>
+        <h3>COMMANDES COMBAT</h3>
+        <p>L'IA-Complex (AIC) assiste les opérateurs en temps réel pour optimiser chaque attaque tactique.</p>
+      </div>
+    </div>
+    <!-- 02 -->
+    <div class="f-card fade-up">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/02.e58f9497.png" class="f-img" alt="Production">
+      <div class="f-body">
+        <div class="f-num">02</div>
+        <h3>LIGNE DE PRODUCTION</h3>
+        <p>Automatisation complète du QG de Wuling pour une efficacité industrielle sans précédent.</p>
+      </div>
+    </div>
+    <!-- 03 -->
+    <div class="f-card fade-up">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/03.722342c9.png" class="f-img" alt="Logistique">
+      <div class="f-body">
+        <div class="f-num">03</div>
+        <h3>RÉSEAU LOGISTIQUE</h3>
+        <p>Déploiement rapide de ressources à travers Talos-II via le système de transport AIC.</p>
+      </div>
+    </div>
+    <!-- 04 -->
+    <div class="f-card fade-up">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/04.924992fa.png" class="f-img" alt="Energie">
+      <div class="f-body">
+        <div class="f-num">04</div>
+        <h3>SYSTÈME ÉLECTRIQUE</h3>
+        <p>Gestion intelligente de l'énergie pour alimenter les avants-postes en zones hostiles.</p>
+      </div>
+    </div>
+    <!-- 05 -->
+    <div class="f-card fade-up">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/05.bc9f3f37.png" class="f-img" alt="Lore">
+      <div class="f-body">
+        <div class="f-num">05</div>
+        <h3>NARRATION AIC</h3>
+        <p>Découvrez les archives de la Commission de l'Automation et les secrets de Talos-II.</p>
+      </div>
+    </div>
+    <!-- 06 -->
+    <div class="f-card fade-up">
+      <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/bg.51f75595.jpg" class="f-img" alt="Evolution">
+      <div class="f-body">
+        <div class="f-num">06</div>
+        <h3>PHASE D'ÉVOLUTION</h3>
+        <p>Progression RPG complète : optimisez les modules AIC pour débloquer de nouvelles capacités.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. GAMEPLAY OP -->
+<section class="container sec fade-up">
+  <div class="gp-split">
+    <div class="gp-text">
+      <h2>Un spin-off qui REDÉFINIT l'univers Arknights</h2>
+      <p>Talos-II est une planète inexplorée gorgée de dangers et de mystères. En tant qu'Endministrator, ton devoir est de mener l'expédition Endfield à la réussite et d'utiliser l'Originiun pour sécuriser ton expansion.</p>
+      <ul>
+        <li>Combats en temps réel — contrôle direct et combos dévastateurs</li>
+        <li>Gestion stratégique — base, ressources, défense en simultané</li>
+        <li>Monde persistant — l'environnement évolue avec tes choix</li>
+        <li>Synergies d'équipe — combinaisons uniques entre opérateurs</li>
+        <li>Graphismes next-gen — moteur 3D haute fidélité optimisé PC</li>
+      </ul>
+      <a href="https://endfield.gryphline.com/fr-fr?source=OOM#information" target="_blank" rel="noopener noreferrer" class="btn btn-sec t-cta" data-loc="gameplay">
+        → Commencer l'aventure
+      </a>
+    </div>
+    <div class="gp-vis">
+      <video autoplay loop muted playsinline class="gp-img" style="object-fit: cover;">
+        <source src="https://web-static.hg-cdn.com/upload/video/20260312/d9bad1882d6d74a6db532747fa741cce.mp4" type="video/mp4">
+      </video>
+      <div class="gp-badge">🎮 Disponible Maintenant</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. LORE -->
+<section class="lore fade-up">
+  <div class="lore-ov"></div>
+  <div class="container lore-c">
+    <div class="l-block" style="transform: translateX(-20px)">
+      <div class="l-icon">🌑</div>
+      <div class="l-text"><h3>TALOS-II</h3><p>Une planète hostile, riche en ressources et en dangers.</p></div>
+    </div>
+    <div class="l-block" style="margin-left: 5%; transform: translateX(20px)">
+      <div class="l-icon">⚡</div>
+      <div class="l-text"><h3>LES OPÉRATEURS</h3><p>Des soldats d'élite aux capacités surhumaines.</p></div>
+    </div>
+    <div class="l-block" style="margin-left: 10%; transform: translateX(-20px)">
+      <div class="l-icon">🔬</div>
+      <div class="l-text"><h3>L'ENDFIELD</h3><p>Une technologie mystérieuse à la source de tout.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. OPERATORS -->
+<section class="container sec fade-up">
+  <h2 class="sec-title">Tes Opérateurs t'attendent</h2>
+  <div class="divider"></div>
+  <div class="op-wrap">
+    <!-- Op 1 -->
+    <div class="op-card stat-anim" data-video="1UVzzRHQbiY">
+      <div class="op-img-w" style="background:var(--bg-sec);">
+        <video autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+          <source src="https://web-static.hg-cdn.com/upload/video/20260312/d9bad1882d6d74a6db532747fa741cce.mp4" type="video/mp4">
+        </video>
+      </div>
+      <h3>TANGTANG</h3><p>Vanguard / DPS</p>
+      <div class="op-stat"><div class="o-s-name">ATK</div><div class="o-s-bg"><div class="o-s-fill" data-w="85%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">DEF</div><div class="o-s-bg"><div class="o-s-fill" data-w="60%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">SPD</div><div class="o-s-bg"><div class="o-s-fill" data-w="90%"></div></div></div>
+      <div class="op-stars">★★★★★</div>
+    </div>
+    <!-- Op 2 -->
+    <div class="op-card stat-anim" data-video="Ls-7USdH03U">
+      <div class="op-img-w" style="background:var(--bg-sec);">
+        <video autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+          <source src="https://web-static.hg-cdn.com/upload/video/20260312/8b928c2b826514e8932564cbffab7a19.mp4" type="video/mp4">
+        </video>
+      </div>
+      <h3>YVONNE</h3><p>Caster</p>
+      <div class="op-stat"><div class="o-s-name">ATK</div><div class="o-s-bg"><div class="o-s-fill" data-w="40%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">DEF</div><div class="o-s-bg"><div class="o-s-fill" data-w="55%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">SPD</div><div class="o-s-bg"><div class="o-s-fill" data-w="70%"></div></div></div>
+      <div class="op-stars">★★★★★</div>
+    </div>
+    <!-- Op 3 -->
+    <div class="op-card stat-anim" data-video="BQom1V9TdbM">
+      <div class="op-img-w" style="background:var(--bg-sec);">
+        <video autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+          <source src="https://web-static.hg-cdn.com/upload/video/20260312/374711a8065e9a709f2181ceebce9af3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <h3>GILBERTA</h3><p>Supporter</p>
+      <div class="op-stat"><div class="o-s-name">ATK</div><div class="o-s-bg"><div class="o-s-fill" data-w="50%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">DEF</div><div class="o-s-bg"><div class="o-s-fill" data-w="95%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">SPD</div><div class="o-s-bg"><div class="o-s-fill" data-w="40%"></div></div></div>
+      <div class="op-stars">★★★★★</div>
+    </div>
+    <!-- Op 4 -->
+    <div class="op-card stat-anim" data-video="QO7ExXWkVbk">
+      <div class="op-img-w" style="background:var(--bg-sec);">
+        <video autoplay loop muted playsinline style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+          <source src="https://web-static.hg-cdn.com/upload/video/20260312/10876b29126cb351af403994131c36d4.mp4" type="video/mp4">
+        </video>
+      </div>
+      <h3>CHEN</h3><p>Guard</p>
+      <div class="op-stat"><div class="o-s-name">ATK</div><div class="o-s-bg"><div class="o-s-fill" data-w="75%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">DEF</div><div class="o-s-bg"><div class="o-s-fill" data-w="60%"></div></div></div>
+      <div class="op-stat"><div class="o-s-name">SPD</div><div class="o-s-bg"><div class="o-s-fill" data-w="80%"></div></div></div>
+      <div class="op-stars">★★★★★</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. REQS -->
+<section class="container sec fade-up">
+  <h2 class="sec-title">Configuration Requise PC</h2>
+  <div class="divider"></div>
+  <div class="req-grid">
+    <div class="r-card">
+      <div class="r-badge">MINIMUM</div>
+      <ul class="r-list">
+        <li><span class="r-key">OS</span><span class="r-val">Windows 10 64-bit</span></li>
+        <li><span class="r-key">CPU</span><span class="r-val">Intel Core i5-4460 / AMD équivalent</span></li>
+        <li><span class="r-key">RAM</span><span class="r-val">8 GB</span></li>
+        <li><span class="r-key">GPU</span><span class="r-val">NVIDIA GTX 960 / AMD RX 470</span></li>
+        <li><span class="r-key">Stockage</span><span class="r-val">30 GB espace libre</span></li>
+        <li><span class="r-key">DirectX</span><span class="r-val">Version 11</span></li>
+      </ul>
+    </div>
+    <div class="r-card r-rec">
+      <div class="r-badge">RECOMMANDÉ ⭐</div>
+      <ul class="r-list">
+        <li><span class="r-key">OS</span><span class="r-val">Windows 10 / 11 64-bit</span></li>
+        <li><span class="r-key">CPU</span><span class="r-val">Intel Core i7-8700 / AMD Ryzen 5 3600</span></li>
+        <li><span class="r-key">RAM</span><span class="r-val">16 GB</span></li>
+        <li><span class="r-key">GPU</span><span class="r-val">NVIDIA RTX 2060 / AMD RX 5700</span></li>
+        <li><span class="r-key">Stockage</span><span class="r-val">50 GB SSD</span></li>
+        <li><span class="r-key">DirectX</span><span class="r-val">Version 12</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="r-note" style="color: var(--text-sec); display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    <span>Aussi disponible sur PlayStation 5, iOS et Android.</span>
+    <div style="display:flex; gap:20px; opacity: 0.7; filter: grayscale(1) brightness(1.5);">
+       <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/appStore.de6bb72b.png" alt="" style="height: 30px;">
+       <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/googlePlay.6c0292ec.png" alt="" style="height: 30px;">
+       <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/ps5.ff9ebc6a.png" alt="" style="height: 25px;">
+       <img src="https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/epic.7b9f0f97.png" alt="" style="height: 25px;">
+    </div>
+  </div>
+</section>
+
+<!-- 8. CTA -->
+<section class="cta-sec fade-up">
+  <div class="cta-c">
+    <h2>Prêt à conquérir Talos-II ?</h2>
+    <p>Gratuit. Immersif. Épique. — Commence maintenant.</p>
+    <div class="cta-btns">
+      <a href="https://endfield.gryphline.com/fr-fr?source=OOM#information" target="_blank" rel="noopener noreferrer" class="btn btn-pri t-cta" data-loc="footer-pri">
+        ⬇ Jouer Gratuitement
+      </a>
+      <a href="https://endfield.gryphline.com/fr-fr?source=OOM#information" target="_blank" rel="noopener noreferrer" class="btn btn-sec t-cta" data-loc="footer-sec">
+        → Voir le site officiel
+      </a>
+    </div>
+    <div class="reassure">✅ Gratuit &nbsp; ✅ Multiplateforme &nbsp; ✅ Inscription incluse</div>
+    <div class="cta-cpi">Conversion validée après installation + inscription complète</div>
+  </div>
+</section>
+
+  <footer>
+    <div class="f-logos" style="display:flex; justify-content:center; gap:40px; margin-bottom: 30px; opacity: 0.8; filter: grayscale(1) invert(1);">
+      <img src="https://web-static.hg-cdn.com/gl_web_sdk/assets/PEGI.36702e64a7e0452b7bcf.png" alt="PEGI" style="height: 50px;">
+      <img src="https://web-static.hg-cdn.com/gl_web_sdk/assets/copyright.160113cbd1f4597b075d.png" alt="Gryphline" style="height: 40px;">
+    </div>
+    <div class="f-logo">ARKNIGHTS: ENDFIELD</div>
+    <div class="f-links">
+      <a href="https://endfield.gryphline.com/fr-fr?source=OOM#information" target="_blank" rel="noopener noreferrer">Site Officiel</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">CGU</a>
+      <a href="#">Support</a>
+    </div>
+    <div class="f-copy" style="margin-top: 20px;">©2024 GRYPHLINE. All Rights Reserved.</div>
+    <p style="font-size: 0.7rem; color: var(--text-sec); margin-top: 10px;">Arknights: Endfield is currently in development. Visuals and content are subject to change.</p>
+  </footer>
+
+  <!-- VIDEO MODAL -->
+  <div id="video-modal">
+    <div class="vm-content">
+      <button class="vm-close">&times;</button>
+      <iframe id="vm-iframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Scroll Animations & Observers
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        e.target.classList.add('visible');
+        if(e.target.classList.contains('stats')) startCounters();
+        if(e.target.classList.contains('stat-anim')) {
+          e.target.querySelectorAll('.o-s-fill').forEach(bar => {
+            bar.style.width = bar.getAttribute('data-w');
+          });
+        }
+        o.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  document.querySelectorAll('.fade-up, .stat-anim').forEach(el => obs.observe(el));
+
+  // Counters
+  let countDone = false;
+  function startCounters() {
+    if(countDone) return; countDone = true;
+    document.querySelectorAll('.c-up').forEach(c => {
+      const target = +c.getAttribute('data-to');
+      if(target === 0) return;
+      let start = null; const d = 1500;
+      const step = (ts) => {
+        if(!start) start = ts;
+        const p = Math.min((ts - start) / d, 1);
+        c.innerText = Math.floor(p * target);
+        if(p < 1) requestAnimationFrame(step);
+        else c.innerText = target;
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
+  // Parallax
+  const hBg = document.getElementById('hero-bg');
+  const wSec = document.getElementById('world-sec');
+  const wVid = document.getElementById('world-vid');
+  const wContent = document.getElementById('world-c');
+
+  window.addEventListener('scroll', () => {
+    // Hero Parallax
+    if(window.scrollY < 1200 && hBg) hBg.style.transform = `translateY(${window.scrollY * 0.3}px)`;
+    
+    // World Section Zoom
+    if(wSec && wVid) {
+      const rect = wSec.getBoundingClientRect();
+      const winH = window.innerHeight;
+      if(rect.top < winH && rect.bottom > 0) {
+        const progress = (winH - rect.top) / (winH + rect.height);
+        const scale = 1.25 - (progress * 0.25); // Scale from 1.25 down to 1.0 (zoom effect)
+        wVid.style.transform = `scale(${scale})`;
+        
+        // Show content when in view
+        if(rect.top < winH * 0.5) wContent.classList.add('visible');
+      }
+    }
+  });
+
+  // Particles
+  const pCont = document.getElementById('particles');
+  for(let i=0; i<25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random()*4 + 2;
+    p.style.width = s+'px'; p.style.height = s+'px';
+    p.style.left = (Math.random()*100)+'vw';
+    p.style.top = (Math.random()*100 + 50)+'vh';
+    p.style.animationDelay = (Math.random()*15)+'s';
+    p.style.animationDuration = (Math.random()*10 + 10)+'s';
+    if(Math.random()>0.5) p.style.background = 'var(--col-sec)';
+    pCont.appendChild(p);
+  }
+
+  // Sound Logic
+  const bgm = document.getElementById('bgm');
+  const sBtn = document.getElementById('sound-btn');
+  let isPlaying = false;
+
+  sBtn.addEventListener('click', () => {
+    if(isPlaying) {
+      bgm.pause();
+      sBtn.classList.remove('playing');
+      sBtn.classList.add('muted');
+    } else {
+      bgm.play().catch(e => console.log("User interaction required"));
+      sBtn.classList.add('playing');
+      sBtn.classList.remove('muted');
+    }
+    isPlaying = !isPlaying;
+  });
+
+  const heroCtaTrigger = document.getElementById('hero-cta-trigger');
+  const mainBtn = document.getElementById('main-download-btn');
+  const teleportZone = document.getElementById('cta-teleport-zone');
+  
+  if (heroCtaTrigger && mainBtn && teleportZone) {
+    const handleScroll = () => {
+      const triggerRect = heroCtaTrigger.getBoundingClientRect();
+      const isPast = triggerRect.bottom < 0;
+      
+      if (isPast && !mainBtn.classList.contains('sticky-active')) {
+        mainBtn.classList.add('sticky-active');
+        teleportZone.appendChild(mainBtn); 
+      } else if (!isPast && mainBtn.classList.contains('sticky-active')) {
+        mainBtn.classList.remove('sticky-active');
+        heroCtaTrigger.appendChild(mainBtn);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+  }
+
+  // Auto-start sound on first click anywhere (optional, better UX for landing pages)
+  document.addEventListener('click', () => {
+    if(!isPlaying && bgm.paused) {
+      // We don't force it to stay playing, just try once
+    }
+  }, { once: true });
+
+  // Click Tracking Placeholders
+  document.querySelectorAll('.t-cta').forEach(b => {
+    b.addEventListener('click', e => {
+      const loc = e.currentTarget.getAttribute('data-loc');
+      console.log('CTA Click:', loc);
+      // fbq('track', 'InitiateCheckout', { source: loc });
+      // gtag('event', 'click', { event_category: 'cta', event_label: loc });
+    });
+  });
+});
+</script>
+
+  <!-- 3D PARALLAX & MODAL LOGIC -->
+  <script>
+    // 3D Parallax Tilt Effect
+    const cards = document.querySelectorAll('.op-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // Calculate rotation based on cursor position relative to center
+        const xPct = (x / rect.width) - 0.5;
+        const yPct = (y / rect.height) - 0.5;
+        // Max tilt angle (degrees)
+        const maxTilt = 20; 
+        const rotateY = xPct * maxTilt;
+        const rotateX = -yPct * maxTilt;
+        
+        card.style.setProperty('--rx', `${rotateX}deg`);
+        card.style.setProperty('--ry', `${rotateY}deg`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--rx', `0deg`);
+        card.style.setProperty('--ry', `0deg`);
+      });
+    });
+
+    // Video Modal Logic
+    const modal = document.getElementById('video-modal');
+    const iframe = document.getElementById('vm-iframe');
+    const closeBtn = document.querySelector('.vm-close');
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const videoId = card.getAttribute('data-video');
+        if(videoId) {
+          iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
+          modal.classList.add('active');
+        }
+      });
+    });
+
+    const closeModal = () => {
+      modal.classList.remove('active');
+      iframe.src = ''; // Stop video playback
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) closeModal();
+    });
+  </script>
+</body>
+</html>
