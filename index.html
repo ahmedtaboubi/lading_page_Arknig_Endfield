@@ -29,7 +29,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: var(--font-b); background: var(--bg-main);
-  color: var(--text-main); overflow-x: hidden; line-height: 1.6;
+  color: var(--text-main); overflow-x: hidden; width: 100%; position: relative; line-height: 1.6;
 }
 h1, h2, h3, h4 { font-family: var(--font-t); text-transform: uppercase; letter-spacing: 1px; }
 a { text-decoration: none; color: inherit; }
@@ -263,14 +263,20 @@ footer { background: #000; padding: 60px 20px 40px; text-align: center; border-t
   .gp-split, .req-grid { grid-template-columns: 1fr; gap: 40px; }
   .gp-vis { order: -1; }
   .op-wrap { 
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 30px !important; 
+    display: flex !important; 
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important; 
+    overflow-y: hidden !important;
+    justify-content: flex-start !important;
+    gap: 20px !important; 
     padding: 20px !important;
-    overflow-x: visible !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--col-pri) transparent;
   }
-  .op-card { width: 100% !important; max-width: 320px !important; flex: none !important; }
+  .op-wrap::-webkit-scrollbar { height: 4px; }
+  .op-wrap::-webkit-scrollbar-thumb { background: var(--col-pri); border-radius: 10px; }
+  .op-card { flex: 0 0 280px !important; width: 280px !important; max-width: none !important; }
 }
 @media(max-width: 768px) {
   .hero-sub { font-size: 1.2rem; }
@@ -279,7 +285,9 @@ footer { background: #000; padding: 60px 20px 40px; text-align: center; border-t
   .cta-btns { flex-direction: column; }
   .r-list li { flex-direction: column; text-align: left; }
   .r-val { text-align: left; margin-top: 5px; }
-  .sec-title { font-size: 2rem; }
+  .sec-title { font-size: 1.8rem; word-wrap: break-word; }
+  .gp-text h2 { font-size: 1.8rem !important; word-wrap: break-word !important; }
+  .gp-badge { right: 0 !important; }
 
   /* STICKY HERO CTA */
   .hero-cta-wrap {
