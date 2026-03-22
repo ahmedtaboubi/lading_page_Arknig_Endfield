@@ -315,33 +315,6 @@ footer { background: #000; padding: 60px 20px 40px; text-align: center; border-t
     gap: 15px;
     margin-bottom: 40px;
   }
-  .btn-pri.sticky-active {
-    position: fixed !important;
-    top: auto !important;
-    bottom: 25px !important;
-    right: 50% !important;
-    transform: translateX(50%) !important;
-    z-index: 100000 !important;
-    font-size: 0.85rem !important;
-    padding: 12px 30px !important;
-    white-space: nowrap !important;
-    box-shadow: 0 8px 25px rgba(238, 246, 30, 0.6) !important;
-    pointer-events: auto !important;
-    display: block !important;
-    background: var(--col-pri) !important;
-    color: #000 !important;
-    border-radius: 50px !important;
-    animation: slide-up-mobile 0.4s ease-out forwards !important;
-  }
-  @keyframes slide-up-mobile {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes slide-sticky {
-    from { opacity: 0; transform: translateY(-50%) rotate(-90deg) translateX(50px); }
-    to { opacity: 1; transform: translateY(-50%) rotate(-90deg) translateX(0); }
-  }
-
 }
 
 /* FINAL MOBILE CORRECTIONS */
@@ -365,6 +338,45 @@ footer { background: #000; padding: 60px 20px 40px; text-align: center; border-t
   .gp-badge { right: 0 !important; border-radius: 0 !important; }
   .f-links { flex-wrap: wrap !important; gap: 15px !important; }
   #particles { max-width: 100vw !important; overflow: hidden !important; }
+
+  /* STICKY CTA FIX (Unified for all Mobile/Tablet) */
+  .btn-pri {
+    border-radius: 50px !important;
+    clip-path: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  .btn-pri.sticky-active {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 25px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    z-index: 100000 !important;
+    font-size: 0.85rem !important;
+    padding: 12px 30px !important;
+    white-space: nowrap !important;
+    pointer-events: auto !important;
+    display: block !important;
+    background: var(--col-pri) !important;
+    color: #000 !important;
+    width: auto !important;
+    height: auto !important;
+    animation: slide-up-mobile 0.4s ease-out forwards, glow-pulse 1s infinite alternate !important;
+    transition: none !important;
+  }
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 10px rgba(238, 246, 30, 0.4), 0 0 20px rgba(238, 246, 30, 0.2); }
+  100% { box-shadow: 0 0 30px rgba(238, 246, 30, 0.8), 0 0 50px rgba(238, 246, 30, 0.3); }
+}
+
+@keyframes slide-up-mobile {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 /* SOUND TOGGLE */
